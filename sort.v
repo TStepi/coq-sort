@@ -46,7 +46,12 @@ Fixpoint vsebuje (l1 l2 : list Z) :=
 Lemma vsebuje_In (x : Z) (l1 l2 : list Z) :
   In x l1 -> vsebuje l1 l2 -> In x l2.
 Proof.
-  admit. (* To bo naredil Jernej. *)
+  induction l1.
+  - now simpl.
+  - intros H G.
+    firstorder.
+    rewrite H in H0.
+    firstorder.
 Qed.
 
 (** Seznama [l1] in [l2] imata enake elemente, če sta
@@ -59,7 +64,9 @@ Definition enak (l1 l2 : list Z) :=
 Lemma vsebuje_cons (x : Z) (l1 l2 : list Z) :
   vsebuje l1 l2 -> vsebuje l1 (x :: l2).
 Proof.
-  admit. (* To bo naredil Stepišnik. *)
+  induction l1.
+  - auto.
+  - firstorder.
 Qed.
 
 Lemma vsebuje_refl (l : list Z) : vsebuje l l.
@@ -74,7 +81,13 @@ Qed.
 Lemma vsebuje_trans (l1 l2 l3 : list Z) :
   vsebuje l1 l2 -> vsebuje l2 l3 -> vsebuje l1 l3.
 Proof.
-  admit. (* To bo naredila Eva. *)
+  intros H G.
+  induction l1.
+  - auto.
+  - firstorder.
+    apply (vsebuje_In a l2 l3).
+    auto.
+    auto.
 Qed.
     
 (** Vsak seznam je enak sam sebi. *)
