@@ -10,20 +10,25 @@ Local Open Scope list_scope.
 Fixpoint najmanjsi (x : Z) (l : list Z) :=
   match l with
     | nil => (x,nil)
-    | y :: l' => let (z,l'') := najmanjsi y l' in 
-            if (Z.leb x z) then (x,l) else (z,x::l'')
+    | y :: l' => if (Z.leb x (fst (najmanjsi y l'))) then (x,l) else ((fst (najmanjsi y l')),x::(snd (najmanjsi y l')))
   end.
 
 Eval compute in (najmanjsi 5%Z (7::20::3::nil)%Z).
 
-Lemma pomo (x a : Z) (l : list Z) :
-  S (length l) = length ( snd ( najmanjsi x (a::l))).
+Lemma dolzina_ostanka (x y : Z) (l : list Z) :
+  length ( snd ( najmanjsi x l))=length ( snd ( najmanjsi y l)).
 Proof.
   induction l.
   - simpl.
-    case_eq (Z.leb x a) ; tauto.
+    auto.
   - simpl.
-    admit.
+    case_eq (Z.leb x (fst (najmanjsi a l)));
+    case_eq (Z.leb y (fst (najmanjsi a l)));
+    intros H G; simpl.
+    + auto.
+    + admit.
+    + admit.
+    + auto.
 Qed.
 
 Lemma ohranjanje_dolzine (x:Z) (l: list Z) :
@@ -32,14 +37,14 @@ Proof.
   induction l.
   - auto.
   - simpl.
-    intros.
     case_eq (Z.leb x (fst (najmanjsi a l))).
     + intro.
-      .
-      
-
-
-apply pomo.
+      simpl.
+      auto.
+    + intro.
+      simpl.
+      rewrite <- (enakost_ostanka x a l).
+      auto.
 Qed.
     
 
