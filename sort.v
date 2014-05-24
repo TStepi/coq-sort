@@ -37,21 +37,19 @@ Fixpoint urejen (l : list Z) :=
 
 (** Relacija [In x l] pomeni, da je [x] element seznama [l]. *)
 
-Fixpoint vsebuje (l1 l2 : list Z) :=
+Fixpoint vsebujestar (l1 l2 : list Z) :=
   match l1 with
     | nil => True
-    | x :: l => In x l2 /\ vsebuje l l2
+    | x :: l => In x l2 /\ vsebujestar l l2
   end.
+
+Definition vsebuje (l1 l2 : list Z) :=
+  forall x : Z, In x l1 -> In x l2.
 
 Lemma vsebuje_In (x : Z) (l1 l2 : list Z) :
   In x l1 -> vsebuje l1 l2 -> In x l2.
 Proof.
-  induction l1.
-  - now simpl.
-  - intros H G.
-    firstorder.
-    rewrite H in H0.
-    firstorder.
+  - firstorder.
 Qed.
 
 (** Seznama [l1] in [l2] imata enake elemente, če sta
@@ -64,30 +62,18 @@ Definition enak (l1 l2 : list Z) :=
 Lemma vsebuje_cons (x : Z) (l1 l2 : list Z) :
   vsebuje l1 l2 -> vsebuje l1 (x :: l2).
 Proof.
-  induction l1.
-  - auto.
-  - firstorder.
+  firstorder.
 Qed.
 
 Lemma vsebuje_refl (l : list Z) : vsebuje l l.
 Proof.
-  induction l.
-  - simpl ; auto.
-  - simpl.
-    split ; auto.
-    now apply vsebuje_cons.
+  firstorder.
 Qed.
 
 Lemma vsebuje_trans (l1 l2 l3 : list Z) :
   vsebuje l1 l2 -> vsebuje l2 l3 -> vsebuje l1 l3.
 Proof.
-  intros H G.
-  induction l1.
-  - auto.
-  - firstorder.
-    apply (vsebuje_In a l2 l3).
-    auto.
-    auto.
+  firstorder.
 Qed.
     
 (** Vsak seznam je enak sam sebi. *)
@@ -101,7 +87,12 @@ Qed.
 Lemma vsebuje_app (l1 l1' l2 l2' : list Z) :
   vsebuje l1 l1' -> vsebuje l2 l2' -> vsebuje (l1 ++ l2) (l1' ++ l2').
 Proof.
-  admit. (* To bo naredil Janoš. *)
+  intros H G.
+  unfold vsebuje.
+  intros x F.
+  apply in_or_app.
+  apply in_app_or in F.
+  firstorder.
 Qed.
 
 Lemma enak_app (l1 l1' l2 l2' : list Z) :
@@ -117,7 +108,7 @@ Lemma enak_cons (x : Z) (l1 l2 : list Z) :
   enak l1 l2 -> enak (x :: l1) (x :: l2).
 Proof.
   intros [H1 H2].
-  split ; simpl ; auto using vsebuje_cons.
+  firstorder.
 Qed.
 
 (** Potrebovali bomo tudi operacije, ki sezname razdelijo na dva
@@ -253,7 +244,8 @@ Proof.
     case_eq (Z.leb y a) ; intro E.
     + apply IHl.
     + transitivity a ; [apply IHl | idtac].
-      admit.
+      apply Z.leb_gt in E.
+      firstorder.  
 Qed.
 
 Lemma najmanjsi_tail x y l : In y l -> (najmanjsi x l <= y)%Z.
@@ -261,7 +253,23 @@ Proof.
   generalize x y ; clear x y.
   induction l ; [intros ? ? H ; destruct H | idtac].
   intros x y H.
-  apply in_inv in H ; destruct H as [G|G] ; admit.
+  apply in_inv in H.
+  destruct H.
+  - rewrite H.
+    unfold najmanjsi.
+    case_eq (Z.leb x y).
+    + intro G.
+      fold najmanjsi.
+      apply Zle_bool_imp_le in G.
+      SearchAbout ( (?x <= ?y)%Z -> (?y <= ?z)%Z -> (?x <= ?z)%Z ).
+      apply (Z.le_trans (najmanjsi x l) x y).
+      apply najmanjsi_head.
+      assumption.
+    + intro G.
+      fold najmanjsi.
+      apply najmanjsi_head.
+  - unfold najmanjsi.
+    case_eq (Z.leb x a) ; intro G ; apply IHl ; assumption.
 Qed.
 
 Lemma najmanjsi_spodna_meja (x : Z) (l : list Z) :
