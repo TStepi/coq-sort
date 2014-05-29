@@ -43,7 +43,10 @@ Qed.
 Lemma urejen_pod2 (x y : Z) (l : list Z) :
   urejen (x :: y :: l) -> urejen (x :: l).
 Proof.
-  admit.
+  intros.
+  destruct H.
+  apply (urejen_menjava x y).
+  firstorder.
 Qed.  
 
 Lemma urejen_prvi (x y : Z) (l : list Z) :
@@ -119,9 +122,28 @@ Proof.
         now apply (urejen_menjava x a l) in C.
         apply IHl in D.
         apply urejen_pod in H.
-        apply (vstavi_mali 
-        repeat apply urejenost_podseznama1 in H.
-        apply (urejen_dodatek x l) in H.
+        assert (forall (t:Z), (In t (vstavi y l)) -> (a <= t)%Z).
+        intros.
+        (*kako ločiš primere? Tu uporabimo H z urejen prvi in F.*)
+        admit.
+        apply urejen_dodatek.
+        split.
+        assumption.
+        apply urejen_pod in D.
+        (*uporabi H0 na prven iz vstavi y l in nato urejen_dodatek. Prvi vedno obstaja.*)
+        assert (exists (h:Z),exists (t:list Z), vstavi y l = h::t).
+        admit.
+        
+        
+        admit.
+        
+        admit.
+        
+      * apply urejen_pod in H.
+        assumption.
+      * assumption.
+        
+Qed.      
 
 Lemma vstavi_ohranja (x : Z) (l : list Z) :
    urejen l -> urejen (vstavi x l).
@@ -135,7 +157,13 @@ Proof.
     apply Zle_bool_imp_le in G.
     firstorder.
   - intro G.
-    simpl.
+    apply Z.leb_gt in G.
+    assert (a<=x)%Z.
+    firstorder.
+    apply (vstavi_pomo a x).
+    assumption.
+    assumption.
+Qed.
         
   
 
@@ -143,9 +171,21 @@ Theorem sort_ureja : forall l : list Z, urejen (insertsort l).
 Proof.
   intro.
   induction l.
-  - now simpl.
+  - unfold insertsort.
+    firstorder.
   - simpl.
-Admitted.
+    apply (vstavi_ohranja a).
+    assumption.
+Qed.
 
 Theorem sort_nespreminja : forall l : list Z, enak l (insertsort l).
-Admitted.
+Proof.
+  intros.
+  admit.
+Qed.
+
+
+
+
+
+
