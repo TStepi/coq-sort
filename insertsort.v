@@ -38,6 +38,15 @@ Lemma urejen_pod (x : Z) (l : list Z) :
   urejen (x :: l) -> urejen l.
 Proof.
   induction l; firstorder.
+Qed.
+
+Lemma urejen_pod2 (x y : Z) (l : list Z) :
+  urejen (x :: y :: l) -> urejen (x :: l).
+Proof.
+  intros.
+  destruct H.
+  apply (urejen_menjava x y).
+  firstorder.
 Qed.  
 
 Lemma urejen_prvi (x y : Z) (l : list Z) :
@@ -137,22 +146,20 @@ Proof.
       now apply (urejen_prvi a y l).
 Qed.
 
+     
 
 Theorem sort_ureja : forall l : list Z, urejen (insertsort l).
 Proof.
   intro.
   induction l.
-  - now simpl.
+  - unfold insertsort.
+    firstorder.
   - simpl.
     now apply vstavi_ohranja.
 Qed.
 
 Theorem sort_nespreminja : forall l : list Z, enak l (insertsort l).
 Admitted.
-
-
-
-
 
 
 
