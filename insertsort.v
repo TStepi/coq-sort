@@ -38,12 +38,6 @@ Lemma urejen_pod (x : Z) (l : list Z) :
   urejen (x :: l) -> urejen l.
 Proof.
   induction l; firstorder.
-Qed.
-
-Lemma urejen_pod2 (x y : Z) (l : list Z) :
-  urejen (x :: y :: l) -> urejen (x :: l).
-Proof.
-  admit.
 Qed.  
 
 Lemma urejen_prvi (x y : Z) (l : list Z) :
@@ -70,9 +64,9 @@ Proof.
 Qed.
 
 Lemma vstavi_glava (x y : Z) (l : list Z) :
-  urejen (x :: l) -> (x < y)%Z -> vstavi y (x :: l) = x :: (vstavi y l).
+  (x < y)%Z -> vstavi y (x :: l) = x :: (vstavi y l).
 Proof.
-  intros F H.
+  intros H.
   simpl.
   apply Z.leb_gt in H.
   now rewrite H.
@@ -87,41 +81,36 @@ Proof.
   now rewrite H.
 Qed.
       
-Lemma vstavi_pomo (x y : Z) (l : list Z) : 
-  urejen (x :: l) -> (x <= y)%Z -> urejen ( x :: (vstavi y l)).
+       
+Lemma vstavi_mini (x : Z) (l : list Z) :
+  urejen l -> (forall y, In y l -> (x <= y)%Z) -> urejen (x :: l).
 Proof.
-  intros H G.
-  induction l. 
+  intro H.
+  intro G.
+  induction l.
+  - auto.
   - firstorder.
-  - case_eq (Z.leb y a).
-    + intro F.
-      assert (urejen (a :: l)) as E.
-      now apply (urejen_pod x (a :: l)).
-      rewrite vstavi_mali.
-      * apply urejen_dodatek.
-        split; auto.
-        apply urejen_dodatek.
-        split; auto.
-        now apply Zle_is_le_bool in F.
-      * now apply Zle_is_le_bool in F.
-    + intro F.
-      SearchAbout ((?x <=? ?y)%Z=false).
-      apply Z.leb_gt in F.
-      rewrite vstavi_glava.
-      * assert (x <= a)%Z as E.
-        apply (urejen_prvi x a (a :: l)). 
-        assumption. 
-        firstorder.
-        assert (urejen (x :: l)) as D.
-        apply urejen_pod in H.
-        assert ((x <= a)%Z /\ urejen (a :: l)) as C.
-        split; assumption.
-        now apply (urejen_menjava x a l) in C.
-        apply IHl in D.
-        apply urejen_pod in H.
-        apply (vstavi_mali 
-        repeat apply urejenost_podseznama1 in H.
-        apply (urejen_dodatek x l) in H.
+Qed.
+
+Lemma el_vstavi (x y : Z) (l : list Z) :
+  In y (vstavi x l) -> y = x \/ In y l.
+Proof.
+  intro.
+  induction l.
+  - simpl in H.
+    firstorder.
+  - case_eq (Z.leb x a).
+    + intro G.
+      apply Zle_is_le_bool in G.
+      rewrite vstavi_mali in H.
+      firstorder.
+      assumption.
+    + intro G.
+      apply Z.leb_gt in G.
+      rewrite vstavi_glava in H.
+      firstorder.
+      assumption.
+Qed.
 
 Lemma vstavi_ohranja (x : Z) (l : list Z) :
    urejen l -> urejen (vstavi x l).
@@ -135,9 +124,19 @@ Proof.
     apply Zle_bool_imp_le in G.
     firstorder.
   - intro G.
-    simpl.
-        
-  
+    apply vstavi_mini.
+    + apply urejen_pod in H.
+      firstorder.
+    + intro y.
+      intro F.
+      apply el_vstavi in F.
+      destruct F.
+      rewrite H0.
+      apply Z.leb_gt in G.
+      firstorder.
+      now apply (urejen_prvi a y l).
+Qed.
+
 
 Theorem sort_ureja : forall l : list Z, urejen (insertsort l).
 Proof.
@@ -145,7 +144,19 @@ Proof.
   induction l.
   - now simpl.
   - simpl.
-Admitted.
+    now apply vstavi_ohranja.
+Qed.
 
 Theorem sort_nespreminja : forall l : list Z, enak l (insertsort l).
 Admitted.
+
+
+
+
+
+
+
+
+
+
+
