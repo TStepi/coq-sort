@@ -1,7 +1,7 @@
 Require Import List.
 Require Import Bool.
 Require Import ZArith.
-Require Import sort.
+Require Import pomozne.
 Require Import Recdef.
 
 Local Open Scope list_scope.
