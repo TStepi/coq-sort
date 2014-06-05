@@ -227,7 +227,8 @@ Proof.
     assert (najmanjsi x l <= x)%Z as G.
     apply najmanjsi_head.
     firstorder.
-  - 
+  - admit.
+Qed. 
     
   
   
@@ -252,7 +253,8 @@ Proof.
       simpl.
       rewrite F.
       apply najmanjsi_head.
-  - apply (IHl x y) in G.
+  - assert (najmanjsi x l <= y)%Z as E.
+    now apply (IHl x y).
     case_eq (Z.leb x a).
     + intro F.
       simpl.
@@ -262,6 +264,7 @@ Proof.
       simpl.
       rewrite F.
       apply Z.leb_gt in F.
+      SearchAbout (In ?x ?l).
     
 Qed.
 
