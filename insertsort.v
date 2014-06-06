@@ -158,8 +158,96 @@ Proof.
     now apply vstavi_ohranja.
 Qed.
 
-Theorem sort_nespreminja : forall l : list Z, enak l (insertsort l).
-Admitted.
+Lemma pojavi_vstavi (x : Z) ( l : list Z) :
+  S(pojavi x l) = pojavi x (vstavi x l).
+Proof.
+  induction l.
+  - simpl.
+    now rewrite Z.eqb_refl.
+  - case_eq (Z.leb x a).
+    + intro.
+      simpl.
+      rewrite H.
+      case_eq (Z.eqb x a).
+      * intro G.
+        apply Z.eqb_eq in G.
+        rewrite <- G.
+        simpl.
+        now rewrite Z.eqb_refl.
+      * intro G.
+        simpl.
+        now rewrite Z.eqb_refl; rewrite G.
+    + intro.
+      simpl.
+      rewrite H.
+      apply Z.leb_gt in H.
+      apply Z.lt_neq in H.
+      apply not_eq_sym in H.
+      apply Z.eqb_neq in H.
+      rewrite H.
+      simpl.
+      now rewrite H.
+Qed.
+
+Lemma vstavi_drugacnega (x y : Z) (l : list Z) :
+  x <> y -> pojavi x l = pojavi x (vstavi  y l).
+Proof.
+  intro.
+  apply Z.eqb_neq in H.
+  induction l.
+  -  simpl.
+     now rewrite H.
+  - simpl.
+    case_eq (Z.eqb x a).
+    + intro G.
+      apply Z.eqb_eq in G.
+      case_eq (Z.leb y a).
+      * intro F.
+        rewrite <- G.
+        simpl.
+        rewrite H.
+        now rewrite Z.eqb_refl.
+      * intro F.
+        rewrite <- G.
+        simpl.
+        rewrite IHl.
+        now rewrite Z.eqb_refl.
+    + intro G.
+      case_eq (Z.leb y a).
+      * intro.
+        simpl.
+        now rewrite H; rewrite G.
+      * intro F.
+        simpl.
+        now rewrite G.
+Qed.
+        
+        
+
+Theorem sort_permutira : forall l : list Z, permutiran l (insertsort l).
+Proof.
+  intro.
+  unfold permutiran.
+  intro.
+  induction l; auto.
+  case_eq (Z.eqb x a).
+  - intro.
+    simpl.
+    rewrite H.
+    apply Z.eqb_eq in H.
+    rewrite <- H.
+    rewrite IHl.
+    apply pojavi_vstavi.
+  - intro.
+    simpl.
+    rewrite H.
+    rewrite IHl.
+    apply Z.eqb_neq in H.
+    now apply vstavi_drugacnega.
+Qed.    
+    
+    
+  
 
 
 
