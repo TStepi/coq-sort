@@ -115,10 +115,46 @@ Proof.
       now apply Zle_is_le_bool in G.
       firstorder.
     + transitivity z.
-      
-    + apply Z.leb_gt in G;firstorder. 
-    
-    
+      now apply Zle_is_le_bool in G.
+      firstorder.
+    + apply Z.leb_gt in F.
+      rewrite F.
+      simpl.
+      apply Z.leb_gt in F.
+      firstorder.
+    + apply Z.leb_gt in F.
+      rewrite F.
+      simpl.
+      apply Z.leb_gt in F.
+      firstorder.
+    + rewrite F.
+      simpl.
+      transitivity z.
+      now apply Zle_is_le_bool in G.
+      now apply Zle_is_le_bool in C.
+    + rewrite F; simpl.
+      transitivity z.
+      transitivity y.
+      now apply Zle_is_le_bool in F.
+      now apply Zle_is_le_bool in H.
+      now apply Zle_is_le_bool in C.
+    + transitivity z.
+      now apply Zle_is_le_bool in G.
+      now apply Zle_is_le_bool in C.
+    + now apply Zle_is_le_bool in C.
+    + apply Z.leb_gt in F; rewrite F; simpl.
+      transitivity z.
+      now apply Zle_is_le_bool in H.
+      now apply Zle_is_le_bool in C.
+    + apply Z.leb_gt in F; rewrite F; simpl.
+      transitivity z.
+      now apply Zle_is_le_bool in H.
+      now apply Zle_is_le_bool in C.
+    + transitivity z.
+      now apply Zle_is_le_bool in G.
+      now apply Zle_is_le_bool in C.
+    + now apply Zle_is_le_bool in C.
+Qed.   
       
 
 Lemma najmanjsi_pod (x y : Z) (l : list Z) :
@@ -128,18 +164,44 @@ Proof.
   induction l.
   - simpl.
     apply Z.le_refl.
-  - assert (x <= fst (najmanjsi x (y :: l)))%Z as G.
-    transitivity (fst (najmanjsi x (y :: a :: l))).
+  - transitivity (fst(najmanjsi x (y :: a :: l))).
     assumption.
-    apply najmanjsi_dod . 
+    apply najmanjsi_dod.
+Qed.
+
+Lemma pomo (x y : Z) (l : list Z) :
+  (x <= fst (najmanjsi x (y :: l)))%Z -> (x <= fst (najmanjsi y l))%Z.
+Proof.
+  intro.
+  simpl.
+  simpl in H.
+  replace (najmanjsi y l) with (fst (najmanjsi y l), snd (najmanjsi y l)) in H;
+      [ idtac | symmetry ; apply surjective_pairing ].
+  case_eq (Z.leb x (fst(najmanjsi y l))).
+  - intro G.
+    now apply Zle_is_le_bool in G.
+  - intro G.
+    rewrite G in H.
+    now simpl in H.
+Qed.
 
 Lemma najmanjsi_ostanek (x : Z) (l : list Z) :
   (x <= fst (najmanjsi x l))%Z -> l = snd (najmanjsi x l).
 Proof.
   intro.
   induction l; auto.
+  simpl.
+  replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+      [ idtac | symmetry ; apply surjective_pairing ].
   
-  
+  case_eq (Z.leb x (fst(najmanjsi a l))).
+  + now intro G.
+  + intro G; simpl.
+    apply pomo in H.
+    apply Z.leb_gt in G.
+    apply Zlt_not_le in G.
+    contradiction.
+Qed.
 
 Lemma naj_tail (x y : Z) (l : list Z) :
   In y (snd (najmanjsi x l)) -> (fst (najmanjsi x l) <= y)%Z.
@@ -166,7 +228,11 @@ Proof.
         apply naj_head.
         transitivity (fst (najmanjsi y l)).
         assumption. assumption.
-      * 
+      * admit.
+    + intro G.
+      simpl.
+      admit.
+Qed.
   
 
 
@@ -183,30 +249,11 @@ Proof.
       auto.
     + intro.
       simpl.
+      .
       admit.
 Qed.
     
 
-Lemma dolzina_ostanka (x y : Z) (l : list Z) :
-  length ( snd ( najmanjsi x l))=length ( snd ( najmanjsi y l)).
-Proof.
-  induction l; auto.
-  simpl.
-  case_eq (Z.leb x (fst (najmanjsi a l)));
-  case_eq (Z.leb y (fst (najmanjsi a l))).
-  - intros H G.
-    destruct (najmanjsi a l) as (z,l'').
-    simpl in H;simpl in G.
-    now rewrite H; rewrite G.
-  - intros H G.
-    replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
-      [ idtac | symmetry ; apply surjective_pairing ].
-    simpl in H;simpl in G.
-    rewrite H; rewrite G.
-    simpl.
-    admit.
-Qed.
-    
     
 Function brutesort (l : list Z) {measure length l} :=
   match l with 
@@ -216,7 +263,7 @@ end.
 Proof.
   intros.
   simpl.
-  rewrite (ohranjanje_dolzine x l').
+  rewrite  <- (ohranjanje_dolzine x l').
   rewrite teq0.
   simpl.
   auto.
