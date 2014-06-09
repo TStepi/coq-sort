@@ -203,14 +203,142 @@ Proof.
     contradiction.
 Qed.
 
+Lemma pomo2 (x y :Z) (l : list Z) :
+  (x <= fst (najmanjsi y l))%Z -> (x <= fst (najmanjsi x l))%Z.
+Proof.
+  intro.
+  induction l; firstorder.
+  simpl.
+  replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+      [ idtac | symmetry ; apply surjective_pairing ].
+  case_eq (Z.leb x (fst (najmanjsi a l))).
+  + intro G.
+    simpl; apply Z.le_refl.
+  + intro G.
+    simpl.
+    simpl in H.
+    replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l)) in H;
+      [ idtac | symmetry ; apply surjective_pairing ].
+    case_eq (Z.leb y (fst (najmanjsi a l))).
+    - intro F.
+      rewrite F in H.
+      simpl in H.
+      transitivity y.
+      assumption.
+      now apply Zle_is_le_bool in F.
+    - intro F.
+      rewrite F in H.
+      now simpl in H.
+Qed.
+
+Lemma pomo3 (x y : Z) (l :list Z):
+  (x <= y)%Z -> fst (najmanjsi x (y :: l)) = fst (najmanjsi x l).
+Proof.
+  intro.
+  apply Zle_imp_le_bool in H.
+  induction l.
+   - simpl.
+     now rewrite H.
+   - simpl.
+     replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+      [ idtac | symmetry ; apply surjective_pairing ].
+     case_eq (Z.leb y (fst (najmanjsi a l)));
+     case_eq (Z.leb x (fst (najmanjsi a l)));
+     try (intros G F; now rewrite H);
+     try (intros G F;
+       rewrite H;
+       simpl;
+       apply Zle_is_le_bool in F;
+       apply Z.leb_gt in G;
+       apply Zle_is_le_bool in H;
+       firstorder);
+     try (intros G F; simpl; firstorder).
+Qed.
+
+Lemma pomo4 (x y :Z) (l : list Z) :
+  (x <= y)%Z -> (fst (najmanjsi x l) <= fst (najmanjsi y l))%Z.
+Proof.
+  intro.
+  induction l; auto.
+  assert ((fst (najmanjsi x (a :: l)) <= fst (najmanjsi x l))%Z) as F.
+  apply najmanjsi_dod.
+  rewrite <- F in IHl.
+  simpl.
+  replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+      [ idtac | symmetry ; apply surjective_pairing ].
+  case_eq (Z.leb y (fst (najmanjsi a l)));
+  case_eq (Z.leb x (fst (najmanjsi a l))).
+   - intros G L.
+     now simpl.
+   - intros G L.
+     simpl.
+     transitivity x.
+      + apply Z.leb_gt in G; firstorder.
+      + auto.
+   - intros G L.
+     simpl.
+     now apply Zle_is_le_bool in G.
+   - intros G L.
+     simpl.
+     apply Z.le_refl.
+Qed.
+
+
+Lemma pomo5 (x y : Z) (l : list Z) : (*pri takih in podobnih lemah ful komplicirava, lahk bi blo x <= fst y l -> In x l -> x = fst y l*)
+  (x <= fst (najmanjsi y (x :: l)))%Z -> x = fst (najmanjsi y (x :: l)).
+Proof.
+  intro.
+  induction l.
+  simpl.
+  case_eq (Z.leb y x).
+   + intro G.
+     simpl.
+     simpl in H.
+     rewrite G in H.
+     simpl in H.
+     apply Zle_is_le_bool in G; firstorder.
+   + intro G.
+     now simpl.
+   + assert ((x <= fst (najmanjsi y (x :: a :: l)))%Z)as H0. assumption.
+     rewrite najmanjsi_dod2 in H.
+     apply IHl in H.
+     case_eq (Z.leb x a).
+      - intro F.
+        simpl.
+        replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+         [ idtac | symmetry ; apply surjective_pairing ].
+        case_eq (Z.leb x (fst (najmanjsi a l)));
+        case_eq (Z.leb y x);
+        case_eq (Z.leb y (fst (najmanjsi a l)));
+        try (intros E L U; now simpl);
+        try (intros E L U; simpl; apply Zle_is_le_bool in L; rewrite naj_head in H0; firstorder).
+         * admit.
+         * intros E L U.
+           simpl.
+           apply Z.leb_gt in L.
+           assert (y <= x)%Z.
+           transitivity (fst (najmanjsi a l)).
+           now apply Zle_is_le_bool in E.
+           apply Z.leb_gt in U;firstorder.
+           firstorder.
+         * intros E L U.
+           simpl.
+           admit.
+      - intro F.
+        admit.
+Qed.
+           
+
+           
+       
+
 Lemma naj_tail (x y : Z) (l : list Z) :
   In y (snd (najmanjsi x l)) -> (fst (najmanjsi x l) <= y)%Z.
 Proof.
   intro.
   induction l.
-  - simpl in H.
-    contradiction.
-  - simpl.
+    simpl in H; contradiction.
+    simpl.
     replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
       [ idtac | symmetry ; apply surjective_pairing ].
     case_eq (Z.leb x (fst(najmanjsi a l))).
@@ -228,10 +356,58 @@ Proof.
         apply naj_head.
         transitivity (fst (najmanjsi y l)).
         assumption. assumption.
-      * admit.
+      * transitivity (fst (najmanjsi x l)).
+        apply Zle_bool_imp_le in G.
+        now apply pomo2 in G.
+        assert (In y (snd (najmanjsi x l))) as F.
+        apply Zle_is_le_bool in G.
+        apply pomo2 in G.
+        apply najmanjsi_ostanek in G.
+        now rewrite G in H.
+        now apply IHl in F.       
     + intro G.
       simpl.
-      admit.
+      apply Z.leb_gt in G.
+      case_eq (Z.leb a (fst (najmanjsi x (a::l)))).
+       * intro F.
+         apply Zle_is_le_bool in F.
+         assert (a = fst (najmanjsi x (a :: l)))%Z.
+         
+         
+         
+
+
+
+      assert (In y (snd (najmanjsi x l))) as F.
+      apply IHl in F.
+      case_eq (Z.leb x y).
+       - intro L.
+         apply Zle_is_le_bool in L.
+         transitivity x; firstorder.
+       - intro L.
+         apply Z.leb_gt in L.
+         assert (In y (snd (najmanjsi x l))).
+         admit.
+         apply IHl in H0.
+         case_eq (Z.leb x a)%Z;
+         case_eq (Z.leb y a).
+          * intros E U.
+            (*če x=a znam dokazati.*)
+            admit.
+          * intros E U.
+            apply Z.leb_gt in E.
+            rewrite naj_head.
+            firstorder.
+          * intros E U.
+            assert ((fst (najmanjsi a l)<=(fst (najmanjsi x l)))%Z).
+            apply pomo4.
+            apply Z.leb_gt in U.
+            firstorder.
+            transitivity (fst (najmanjsi x l));assumption.
+          * intros E U.
+            apply Z.leb_gt in E.
+            rewrite naj_head.
+            firstorder.
 Qed.
   
 
@@ -249,7 +425,9 @@ Proof.
       auto.
     + intro.
       simpl.
-      .
+      rewrite <- IHl.
+      apply eq_S.
+      
       admit.
 Qed.
     
