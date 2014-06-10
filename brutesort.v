@@ -78,6 +78,7 @@ Proof.
         apply Z.le_refl.
 Qed.
 
+
 Lemma najmanjsi_dod2 (x y z : Z) (l : list Z) :
   (fst(najmanjsi x (y :: z :: l)) <= fst(najmanjsi x (y :: l)))%Z.
 Proof.
@@ -328,8 +329,27 @@ Proof.
         admit.
 Qed.
            
-
-           
+Lemma pomo6 (x : Z) (l : list Z) :
+  (x <= fst (najmanjsi x l))%Z -> x = fst (najmanjsi x l).
+Proof.
+  intro.
+  induction l; auto.
+  simpl.
+  replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+         [ idtac | symmetry ; apply surjective_pairing ].
+  case_eq (Z.leb x (fst (najmanjsi a l))).
+   - intro G.
+     now simpl.
+   - intro G.
+     simpl.
+     assert ((x <= fst (najmanjsi x  l))%Z) as F.
+      + transitivity (fst (najmanjsi x (a :: l))).
+        * assumption.
+        * apply najmanjsi_dod.
+      + apply IHl in F.
+        apply pomo in H.
+        apply Z.leb_gt in G; firstorder.
+Qed. 
        
 
 Lemma naj_tail (x y : Z) (l : list Z) :
@@ -372,47 +392,50 @@ Proof.
        * intro F.
          apply Zle_is_le_bool in F.
          assert (a = fst (najmanjsi x (a :: l)))%Z.
+         admit. admit. 
+       * admit.
          
-         
-         
-
-
-
-      assert (In y (snd (najmanjsi x l))) as F.
-      apply IHl in F.
-      case_eq (Z.leb x y).
-       - intro L.
-         apply Zle_is_le_bool in L.
-         transitivity x; firstorder.
-       - intro L.
-         apply Z.leb_gt in L.
-         assert (In y (snd (najmanjsi x l))).
-         admit.
-         apply IHl in H0.
-         case_eq (Z.leb x a)%Z;
-         case_eq (Z.leb y a).
-          * intros E U.
-            (*če x=a znam dokazati.*)
-            admit.
-          * intros E U.
-            apply Z.leb_gt in E.
-            rewrite naj_head.
-            firstorder.
-          * intros E U.
-            assert ((fst (najmanjsi a l)<=(fst (najmanjsi x l)))%Z).
-            apply pomo4.
-            apply Z.leb_gt in U.
-            firstorder.
-            transitivity (fst (najmanjsi x l));assumption.
-          * intros E U.
-            apply Z.leb_gt in E.
-            rewrite naj_head.
-            firstorder.
 Qed.
-  
+
+Lemma enake_dolzine (x y : Z) (l : list Z) :
+  length (snd (najmanjsi x l)) = length (snd (najmanjsi y l)).
+Proof.
+  induction l; auto.
+  simpl.
+  replace (najmanjsi a l) with (fst (najmanjsi a l), snd (najmanjsi a l));
+     [ idtac | symmetry ; apply surjective_pairing ].
+  case_eq (Z.leb x (fst (najmanjsi a l)));
+  case_eq (Z.leb y (fst (najmanjsi a l))).
+   - intros G F.
+     now simpl.
+   - intros G F.
+     simpl.
+     apply Zle_is_le_bool in F.
+     apply eq_S.
+     assert ((x <= fst (najmanjsi a l))%Z) as E. assumption.
+     apply pomo2 in E.
+     assert (l = snd (najmanjsi x l)) as L.
+     now apply najmanjsi_ostanek in E.
+     case_eq (Z.leb a (fst (najmanjsi a l))).
+      + intro H.
+        apply Zle_is_le_bool in H.
+        apply najmanjsi_ostanek in H.
+        now rewrite <- H.
+      + intro H.
+        rewrite L.
+        rewrite IHl.
+        apply Z.leb_gt in G.
+        apply Z.leb_gt in H.
+        rewrite <- L.
+        admit.
+   - (*analogen zgornjemu*)
+     admit.
+   - intros G F.
+     now simpl.
+Qed.
 
 
-Lemma ohranjanje_dolzine (x:Z) (l: list Z) :
+Lemma ohranjanje_dolzine (x:Z) (l : list Z) :
   length (snd (najmanjsi x l)) = length l.
 Proof.
   induction l;auto.
@@ -427,8 +450,7 @@ Proof.
       simpl.
       rewrite <- IHl.
       apply eq_S.
-      
-      admit.
+      now apply enake_dolzine.
 Qed.
     
 
