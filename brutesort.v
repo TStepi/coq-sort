@@ -13,7 +13,7 @@ Fixpoint najmanjsi (x : Z) (l : list Z) :=
     | y :: l' => let (z,l'') := najmanjsi y l' in if (Z.leb x z) then (x,l) else (z,x::l'')
   end.
 
-Eval compute in (najmanjsi 5%Z (7::20::3::nil)%Z).
+Eval compute in (najmanjsi 5%Z (5::3::3::nil)%Z).
 
 Lemma naj_head (x : Z) (l : list Z) :
   (fst (najmanjsi x l) <= x)%Z.
