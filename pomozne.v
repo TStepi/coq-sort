@@ -245,15 +245,56 @@ Proof.
     case_eq (Z.leb y a) ; intro E.
     + apply IHl.
     + transitivity a ; [apply IHl | idtac].
-      admit.
+      apply Z.leb_gt in E; firstorder.
 Qed.
+
+Lemma manjsi_manjsi (x y : Z) (l : list Z) :
+  (x <= y)%Z -> (najmanjsi x l <= najmanjsi y l)%Z.
+Proof.
+  intro H.
+  induction l; auto.
+  simpl.
+  case_eq (Z.leb x a);
+  case_eq (Z.leb y a).
+   - intros F G; assumption.
+   - intros F G.
+     admit.
+   - intros F G.
+     rewrite <- IHl.
+     assert (In (najmanjsi x l) (x::l)).
+     apply najmanjsi_In.
+     assert (In (najmanjsi a l) (a::l)).
+     apply najmanjsi_In.
+     apply Z.leb_gt in G.
+     apply Zle_is_le_bool in F.
+     firstorder.
+   - intros F G; firstorder.
+Qed.
+
 
 Lemma najmanjsi_tail x y l : In y l -> (najmanjsi x l <= y)%Z.
 Proof.
   generalize x y ; clear x y.
   induction l ; [intros ? ? H ; destruct H | idtac].
   intros x y H.
-  apply in_inv in H ; destruct H as [G|G] ; admit.
+  apply in_inv in H ; destruct H as [G|G].
+   - rewrite G.
+     simpl.
+     case_eq (Z.leb x y).
+      + intro F.
+        apply Zle_is_le_bool in F.
+        now rewrite najmanjsi_head.
+      + intro F.
+        now apply najmanjsi_head.
+   - simpl.
+     case_eq (Z.leb x a).
+      + intro F; now apply IHl.
+      + intro F.
+        apply Z.leb_gt in F.
+        apply (IHl x y) in G.
+        transitivity (najmanjsi x l).
+         * apply manjsi_manjsi; firstorder.
+         * assumption.     
 Qed.
 
 Lemma najmanjsi_spodna_meja (x : Z) (l : list Z) :
