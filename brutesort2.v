@@ -111,10 +111,10 @@ Proof.
       now apply eq_S.   
 Qed.
 
-Function brutesort (l : list Z) {measure length l} :=
+Function bsort (l : list Z) {measure length l} :=
   match l with
     |nil => nil
-    | x :: l' => (najmanjsi x l') :: brutesort (ostanek (x :: l'))
+    | x :: l' => (najmanjsi x l') :: bsort (ostanek (x :: l'))
   end.
 Proof.
   intros l x l' H.
@@ -122,5 +122,5 @@ Proof.
   firstorder.
 Qed.
 
-Eval compute in (brutesort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z).
+Eval compute in (bsort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z).
   

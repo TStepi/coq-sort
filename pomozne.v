@@ -240,29 +240,6 @@ Proof.
       apply Z.leb_gt in E; firstorder.
 Qed.
 
-Lemma manjsi_manjsi (x y : Z) (l : list Z) :
-  (x <= y)%Z -> (najmanjsi x l <= najmanjsi y l)%Z.
-Proof.
-  intro H.
-  induction l; auto.
-  simpl.
-  case_eq (Z.leb x a);
-  case_eq (Z.leb y a).
-   - intros F G; assumption.
-   - intros F G.
-     admit.
-   - intros F G.
-     rewrite <- IHl.
-     assert (In (najmanjsi x l) (x::l)).
-     apply najmanjsi_In.
-     assert (In (najmanjsi a l) (a::l)).
-     apply najmanjsi_In.
-     apply Z.leb_gt in G.
-     apply Zle_is_le_bool in F.
-     firstorder.
-   - intros F G; firstorder.
-Qed.
-
 
 Lemma najmanjsi_tail x y l : In y l -> (najmanjsi x l <= y)%Z.
 Proof.
@@ -283,10 +260,7 @@ Proof.
       + intro F; now apply IHl.
       + intro F.
         apply Z.leb_gt in F.
-        apply (IHl x y) in G.
-        transitivity (najmanjsi x l).
-         * apply manjsi_manjsi; firstorder.
-         * assumption.     
+        now apply (IHl a y).
 Qed.
 
 Lemma najmanjsi_spodna_meja (x : Z) (l : list Z) :
