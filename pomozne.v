@@ -69,8 +69,6 @@ Fixpoint pojavi (x : Z) (l : list Z) : nat :=
       if x =? y then S (pojavi x l') else pojavi x l'
   end.
 
-Eval compute in pojavi 3 (1 :: 4 :: 3 :: 3 :: 2 :: 3 :: 1 :: 3 :: nil).
-
 (** Zveza med [pojavi] in stikanjem seznamov. *)
 Lemma pojavi_app (x : Z) (l1 l2 : list Z) :
   pojavi x (l1 ++ l2) = (pojavi x l1 + pojavi x l2)%nat.
@@ -117,8 +115,6 @@ Fixpoint razpolovi (l : list Z) :=
       let (l1, l2) := razpolovi l' in
         (x :: l1, y :: l2)
   end.
-
-Eval compute in (razpolovi (1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: 9 :: nil)%Z).
 
 (** To je pomožna oblika indukcije na seznamih. Pravi, pa tole:
     denimo, da lastnost P in da
@@ -178,7 +174,6 @@ Fixpoint razdeli (p : Z -> bool) (l : list Z) :=
 
 (** Na primer, takole razdelimo dani seznam glede na to,
     ali so elementi večji od 5. *)
-Eval compute in (razdeli (Z.leb 5) (10 :: 1 :: 1 :: 3 :: 8 :: 7 :: 5 :: nil)%Z).
  
 Lemma razdeli_length (p : Z -> bool) (l : list Z) :
   let (l1, l2) := razdeli p l in
@@ -209,10 +204,7 @@ Fixpoint najmanjsi (x : Z) (l : list Z) : Z :=
       end
   end.
 
-Eval compute in (najmanjsi 4 (10 :: 1 :: 1 :: 3 :: 8 :: 7 :: 5 :: nil)%Z).
-
 (** Tako povemo, da želimo pripadajoči program v OCamlu. *)
-Recursive Extraction najmanjsi.
 
 (** Osnovne leme o najmanjsih elementih. *)
 
