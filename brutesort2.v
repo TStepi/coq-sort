@@ -3,6 +3,7 @@ Require Import Bool.
 Require Import ZArith.
 Require Import pomozne.
 Require Import Recdef.
+Require Import insertsort.
 
 Fixpoint ostanek (l : list Z) : list Z :=
   match l with
@@ -120,7 +121,141 @@ Proof.
   intros l x l' H.
   rewrite <- dolzina_ostanka.
   firstorder.
+Defined.
+
+(*bsort_tcc is defined
+bsort_terminate is defined
+bsort_ind is defined
+bsort_rec is defined
+bsort_rect is defined
+R_bsort_correct is defined
+R_bsort_complete is defined
+bsort is defined
+bsort_equation is defined*)
+
+Lemma o_nil :
+  bsort nil = nil.
+Proof.
+  now rewrite bsort_equation.
 Qed.
 
-Eval compute in (bsort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z).
+Lemma en_el (x : Z) :
+  bsort (x::nil) = x::nil.
+Proof.
+  rewrite bsort_equation.
+  simpl.
+  rewrite Z.eqb_refl.
+  now rewrite o_nil.
+Qed.
+
+(*Lemma manjsi_urejen (x : Z) (l : list Z) :
+  (x <= najmanjsi x l)%Z -> bsort (x::l) = x :: bsort l.
+Proof.
+  intro.
+  induction l.
+  rewrite o_nil.
+  apply en_el.
+  rewrite bsort_equation.
+  simpl.
+  admit.
+  (*case_eq (Z.leb x a);
+  case_eq (Z.eqb x (najmanjsi x l)).
+   - intros F G.*)
+Qed.*)
+
+Lemma prvi_najmanjsi (x : Z) (l : list Z) :
+  urejen (x :: l) -> najmanjsi x l = x.
+Proof.
+  intro.
+  induction l; auto.
+  simpl.
+  case_eq (Z.leb x a).
+   - intro G.
+     apply urejen_pod2 in H.
+     now apply IHl in H.
+   - intro G.
+     apply Z.leb_gt in G.
+     firstorder.
+Qed.
+
+Lemma o_ostanku (x : Z) (l : list Z) :
+  urejen (x :: l) -> ostanek (x :: l) = l.
+Proof.
+  intro.
+  induction l.
+  unfold ostanek.
+  simpl.
+  assert ((x =? x)%Z = true).
+  apply Z.eqb_refl.
+  now rewrite H0.
+  unfold ostanek.
+  assert ((x =? najmanjsi x (a :: l))%Z = true).
+   - rewrite (prvi_najmanjsi x (a::l)).
+     apply Z.eqb_refl.
+     assumption.
+   - now rewrite H0.
+Qed.
+
+Lemma bsort_urejen (x : Z) (l : list Z) :
+  urejen l -> bsort l = l.
+Proof.
+  intro.
+  induction l.
+  apply o_nil.
+  rewrite bsort_equation.
+  rewrite prvi_najmanjsi.
+  rewrite o_ostanku.
+   - apply urejen_pod in H.
+     apply IHl in H.
+     now rewrite H.
+   - assumption.
+   - assumption.
+Qed.
+
+Lemma ohranjanje_el (x : Z) (l : list Z) :
+  In x l <-> In x (bsort l).
+Admitted.
+
+Lemma najmanjsi_head2 (x y : Z) (l : list Z) :
+  (najmanjsi x (y :: l) <= y)%Z.
+Proof.
+  induction l.
+  simpl.
+  case_eq (Z.leb x y).
+   - intro H.
+     now apply Zle_is_le_bool in H.
+   - intro H.
+     apply Z.le_refl.
+   - case_eq (a =? najmanjsi x (y :: a :: l))%Z.
+      + intro H.
+        
+Qed.
+
+Lemma najmanjsi_in (x y : Z) (l : list Z) :
+  In y l -> (najmanjsi x l <= y)%Z.
+Proof.
+  intro.
+  induction l.
+  now simpl in H.
+  case_eq (Z.eqb y a).
+   - intro G.
+     apply Z.eqb_eq in G.
+     rewrite G.
+     
+
+Theorem bsort_ureja (l : list Z) :
+  urejen (bsort l).
+Proof.
+  induction l.
+  rewrite o_nil.
+  now unfold urejen.
+  rewrite bsort_equation.
+  apply (vstavi_mini (najmanjsi a l)) in IHl.
+   + admit.
+   + firstorder.
+     apply <- ohranjanje_el in H.
+     now apply najmanjsi_in.
+Qed.
+
+Eval compute in  bsort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z.
   
