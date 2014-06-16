@@ -114,13 +114,15 @@ Qed.
 Function bsort (l : list Z) {measure length l} :=
   match l with
     |nil => nil
-    | x :: l' => (najmanjsi x l') :: bsort (ostanek (x :: l'))
+    | x :: l' => (najmanjsi x l') :: (bsort (ostanek (x :: l')))
   end.
 Proof.
   intros l x l' H.
   rewrite <- dolzina_ostanka.
   firstorder.
-Qed.
+Defined.
+
 
 Eval compute in (bsort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z).
-  
+
+
