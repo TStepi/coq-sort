@@ -20,45 +20,7 @@ Fixpoint insertsort (l : list Z) :=
 
 Eval compute in (insertsort (2 :: 5 :: 3 :: 1 :: 10 :: 7 :: nil)%Z).
 
-Lemma urejen_dodatek (x y : Z) (l : list Z) :
-  (x<=y)%Z /\ urejen (y :: l) -> urejen (x :: y :: l).
-Proof.
-  intro.
-  induction l; firstorder.
-Qed.
 
-Lemma urejen_menjava (x y : Z) (l : list Z) :
-  (x<=y)%Z /\ urejen (y :: l) -> urejen (x :: l).
-Proof.
-  intro.
-  induction l ; firstorder.
-Qed.
-
-Lemma urejen_pod (x : Z) (l : list Z) :
-  urejen (x :: l) -> urejen l.
-Proof.
-  induction l; firstorder.
-Qed.
-
-Lemma urejen_pod2 (x y : Z) (l : list Z) :
-  urejen (x :: y :: l) -> urejen (x :: l).
-Proof.
-  intros.
-  destruct H.
-  apply (urejen_menjava x y).
-  firstorder.
-Qed.  
-
-Lemma urejen_prvi (x y : Z) (l : list Z) :
-  urejen (x :: l) -> In y l -> (x <= y)%Z.
-Proof.
-  intros G H.
-  induction l; firstorder.
-  apply IHl.
-  apply (urejen_menjava x a l).
-  firstorder.
-  assumption.
-Qed.
 
 Lemma vstavi_min (x : Z) (l : list Z) :
   urejen (x :: l) -> vstavi x l = x :: l.

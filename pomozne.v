@@ -60,6 +60,46 @@ Proof.
   - destruct l ; simpl ; auto.
 Qed.
 
+Lemma urejen_dodatek (x y : Z) (l : list Z) :
+  (x<=y)%Z /\ urejen (y :: l) -> urejen (x :: y :: l).
+Proof.
+  intro.
+  induction l; firstorder.
+Qed.
+
+Lemma urejen_menjava (x y : Z) (l : list Z) :
+  (x<=y)%Z /\ urejen (y :: l) -> urejen (x :: l).
+Proof.
+  intro.
+  induction l ; firstorder.
+Qed.
+
+Lemma urejen_pod (x : Z) (l : list Z) :
+  urejen (x :: l) -> urejen l.
+Proof.
+  induction l; firstorder.
+Qed.
+
+Lemma urejen_pod2 (x y : Z) (l : list Z) :
+  urejen (x :: y :: l) -> urejen (x :: l).
+Proof.
+  intros.
+  destruct H.
+  apply (urejen_menjava x y).
+  firstorder.
+Qed.  
+
+Lemma urejen_prvi (x y : Z) (l : list Z) :
+  urejen (x :: l) -> In y l -> (x <= y)%Z.
+Proof.
+  intros G H.
+  induction l; firstorder.
+  apply IHl.
+  apply (urejen_menjava x a l).
+  firstorder.
+  assumption.
+Qed.
+
 (** Za permutacije potrebujemo funkcijo, ki prešteje, kolikokrat
     se dano število [k] pojavi v seznamu [l]. *)
 Fixpoint pojavi (x : Z) (l : list Z) : nat :=
@@ -141,6 +181,12 @@ Fixpoint list_ind_2
     | x :: nil => p1 x
     | x :: y :: l' => p2 x y l' (list_ind_2 P p0 p1 p2 l')
   end.
+
+Lemma dolzina A (x : A) (l : list A) :
+  S(length l) = length (x :: l).
+Proof.
+  firstorder.
+Qed.
 
 (** Osnovne lastnosti razpolavljanja. *)
 
@@ -270,3 +316,6 @@ Proof.
   - rewrite H ; apply najmanjsi_head.
   - now apply najmanjsi_tail.
 Qed.
+
+Lemma najmanjsi_en (x : Z) :
+  x = najmanjsi x nil.
