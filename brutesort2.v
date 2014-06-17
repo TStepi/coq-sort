@@ -222,9 +222,87 @@ Proof.
   - destruct l; auto.
 Qed.
 
+Lemma en_el (x : Z) :
+  bsort (x::nil) = x::nil.
+Proof.
+  rewrite bsort_equation.
+  simpl.
+  rewrite Z.eqb_refl.
+  firstorder.
+Qed.
+
+Lemma in_bsort (x y z : Z) (l : list Z) :
+  In x (bsort (y :: z :: l)) -> x = z \/ In x (bsort (y :: l)).
+Proof.
+  intro.
+  induction l.
+  rewrite bsort_equation in H.
+  simpl in H.
+  case_eq (Z.leb y z).
+   - intro.
+     rewrite H0 in H.
+     rewrite Z.eqb_refl in H.
+     rewrite en_el.
+     rewrite en_el in H.
+     firstorder.
+   - intro.
+     rewrite H0 in H.
+     apply Z.leb_gt in H0.
+     apply Z.lt_neq in H0.
+     apply not_eq_sym in H0.
+     apply <- Z.eqb_neq in H0.
+     rewrite H0 in H.
+     rewrite Z.eqb_refl in H.
+     rewrite en_el in H.
+     rewrite en_el.
+     firstorder.
+   - (*tukaj je veliko primerov, zadeva pa je dokaj očitna.
+       nevem, če se mi da tole delat.*)
+     rewrite bsort_equation in H.
+     simpl in H.
+     case_eq (Z.leb y z);
+     case_eq (Z.leb y a);
+     case_eq (Z.leb z a);
+     case_eq (Z.eqb y (najmanjsi y l));
+     case_eq (Z.eqb a (najmanjsi a l));
+     case_eq (Z.eqb z (najmanjsi z l));
+     intros G1 G2 G3 G4 G5 G6;
+     try (rewrite G6 in H);
+     try (rewrite G5 in H);
+     try (rewrite G4 in H);
+     try (rewrite G3 in H);
+     try (rewrite G2 in H);
+     try (rewrite G1 in H);
+     admit.
+Qed.
+  
+  
+
+Lemma in_split (x y : Z) (l : list Z) :
+  In x (bsort (y :: l)) -> x = y \/ In x l.
+Proof.
+  intro.
+  induction l.
+  rewrite en_el in H.
+  simpl in H.
+  firstorder.
+  apply in_bsort in H.
+  destruct H.
+  firstorder.
+  apply IHl in H.
+  firstorder.
+Qed.
+
 Lemma ohranjanje_el (x : Z) (l : list Z) :
-  In x l <-> In x (bsort l).
-Admitted.
+   In x (bsort l) -> In x l.
+Proof.
+  intro.
+  induction l.
+  now simpl in H.
+  apply in_split in H.
+  destruct H; firstorder.
+Qed.
+
 
 Lemma bsort_ureja_n (n : nat) (l : list Z) :
   (length l <= n)%nat -> urejen (bsort l).
@@ -276,7 +354,108 @@ Proof.
   omega.
 Qed.
 
+Lemma pojavi_bsort (x : Z) (l : list Z) :
+  pojavi x (bsort (x :: l)) = S (pojavi x (bsort l)).
+Proof.
+  induction l.
+  rewrite en_el.
+  simpl.
+  now rewrite Z.eqb_refl.
+  rewrite bsort_equation.
+  simpl.
+  case_eq (Z.leb x a);
+  case_eq (Z.eqb x a);
+  case_eq (Z.eqb x (najmanjsi x l));
+  case_eq (Z.eqb a (najmanjsi a l));
+  case_eq (Z.eqb x (najmanjsi x (ostanek l)));
+  intros;
+  try firstorder;
+  try (apply Z.eqb_eq in H2;
+     rewrite H2 in H1;
+     apply Z.eqb_eq in H0;
+     apply Z.eqb_neq in H1;
+     contradiction);
+  admit.
+  (* - apply Z.eqb_eq in H2.
+     rewrite <- H2.
+     rewrite bsort_equation.
+     simpl.
+     rewrite Z.leb_refl.
+     rewrite H.
+     admit.*)
+Qed.
+     
+     
 
-Theorem bsort_permutira : forall l : list Z, permutiran l (insertsort l).
-Admitted.
+Lemma drugacen_bsort (x y : Z) (l : list Z) :
+  x <> y -> pojavi x l = pojavi x (bsort  (y :: l)).
+Proof.
+  intro.
+  induction l.
+  rewrite en_el.
+  apply Z.eqb_neq in H.
+  simpl.
+  now rewrite H.
+  simpl.
+  case_eq (Z.eqb y (najmanjsi x l));
+  case_eq (Z.eqb x (najmanjsi x l));
+  case_eq (Z.eqb y (najmanjsi y l));
+  case_eq (Z.eqb x (najmanjsi y l));
+  case_eq (Z.eqb x a);
+  case_eq (Z.leb y x);
+  intros;
+  try firstorder;
+  try (apply Z.eqb_eq in H1;
+     rewrite <- H1;
+     rewrite bsort_equation;
+     simpl;
+     try rewrite H0;
+     try rewrite H1;
+     try rewrite H2;
+     try rewrite H3;
+     try rewrite H4;
+     try rewrite H5;
+     try rewrite H6;
+     apply Z.eqb_eq in H2;
+     apply Z.eqb_eq in H3;
+     assert (x = y);
+     firstorder;
+     firstorder);
+  admit.
+Qed.
+
+Theorem bsort_permutira : forall l : list Z, permutiran l (bsort l).
+Proof.
+  unfold permutiran.
+  intros.
+  induction l.
+  now simpl.
+  simpl.
+  case_eq (Z.eqb x a).
+   - intro.
+     apply Z.eqb_eq in H.
+     rewrite <- H.
+     rewrite IHl.
+     now rewrite pojavi_bsort.
+   - intro.
+     apply Z.eqb_neq in H.
+     now apply (drugacen_bsort x a l) in H.
+Qed.
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
