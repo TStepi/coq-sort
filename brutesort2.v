@@ -231,76 +231,131 @@ Proof.
   firstorder.
 Qed.
 
-Lemma in_bsort (x y z : Z) (l : list Z) :
-  In x (bsort (y :: z :: l)) -> x = z \/ In x (bsort (y :: l)).
+Lemma pomo1 (x : Z) (l : list Z) :
+  In x (bsort (ostanek l)) -> In x (bsort l).
 Proof.
   intro.
   induction l.
-  rewrite bsort_equation in H.
+  firstorder.
   simpl in H.
-  case_eq (Z.leb y z).
-   - intro.
-     rewrite H0 in H.
-     rewrite Z.eqb_refl in H.
-     rewrite en_el.
-     rewrite en_el in H.
-     firstorder.
-   - intro.
-     rewrite H0 in H.
-     apply Z.leb_gt in H0.
-     apply Z.lt_neq in H0.
-     apply not_eq_sym in H0.
-     apply <- Z.eqb_neq in H0.
-     rewrite H0 in H.
-     rewrite Z.eqb_refl in H.
-     rewrite en_el in H.
-     rewrite en_el.
-     firstorder.
-   - (*tukaj je veliko primerov, zadeva pa je dokaj očitna.
-       nevem, če se mi da tole delat.*)
-     rewrite bsort_equation in H.
-     simpl in H.
-     case_eq (Z.leb y z);
-     case_eq (Z.leb y a);
-     case_eq (Z.leb z a);
-     case_eq (Z.eqb y (najmanjsi y l));
-     case_eq (Z.eqb a (najmanjsi a l));
-     case_eq (Z.eqb z (najmanjsi z l));
-     intros G1 G2 G3 G4 G5 G6;
-     try (rewrite G6 in H);
-     try (rewrite G5 in H);
-     try (rewrite G4 in H);
-     try (rewrite G3 in H);
-     try (rewrite G2 in H);
-     try (rewrite G1 in H);
-     admit.
+  case_eq (Z.eqb a (najmanjsi a l)).
+   - intro G.
+     rewrite G in H.
+     rewrite bsort_equation.
+     simpl.
+     rewrite G.
+     now right.
+   - intro G.
+     rewrite G in H.
+     rewrite bsort_equation.
+     simpl.
+     rewrite G.
+     now right.
 Qed.
-  
-  
 
-Lemma in_split (x y : Z) (l : list Z) :
-  In x (bsort (y :: l)) -> x = y \/ In x l.
+Lemma pomo2 (x : Z) (l : list Z) :
+  In x (ostanek l) -> In x l.
 Proof.
   intro.
-  induction l.
-  rewrite en_el in H.
+  induction l; firstorder.
+  simpl.
   simpl in H.
-  firstorder.
-  apply in_bsort in H.
-  destruct H.
-  firstorder.
-  apply IHl in H.
-  firstorder.
+  case_eq (Z.eqb a (najmanjsi a l)).
+   - intro G.
+     rewrite G in H.
+     now right.
+   - intro G.
+     rewrite G in H.
+     simpl in H.
+     destruct H.
+      + now left.
+      + apply IHl in H.
+        now right.
 Qed.
+
+Lemma najmanjsi_nekaj (x y : Z) (l : list Z) :
+  (y < najmanjsi x l)%Z -> y = najmanjsi y l.
+Admitted.
+(*Tole sva zih že mela dokazan. Kvečjemu v močnejši obliki.*) 
+
+Lemma pomo3 (x : Z) (l : list Z) :
+  length (x :: l) = S (length (ostanek (x :: l))).
+Proof.
+  induction l.
+  simpl.
+  rewrite Z.eqb_refl.
+  now simpl.
+  simpl.
+  case_eq (Z.leb x a);
+  case_eq (Z.eqb x (najmanjsi a l));
+  case_eq (Z.eqb a (najmanjsi a l));
+  case_eq (Z.eqb x (najmanjsi x l)); 
+  intros H G F U;
+  try (simpl in IHl; rewrite H in IHl; firstorder).
+  simpl.
+  apply Z.eqb_eq in H;
+  apply Z.eqb_neq in F;
+  apply Z.eqb_neq in G.
+  apply Z.leb_gt in U.
+  rewrite H in U.
+  apply najmanjsi_nekaj in U.
+  contradiction.
+Qed.  
+
+Lemma ohranjanje_el_n (x : Z) (n : nat) (l : list Z) :
+  length l <= n -> In x (bsort l) -> In x l.
+Proof.
+  generalize l.
+  induction n; intros l' G.
+   - destruct l'.
+     firstorder.
+     simpl in G.
+     firstorder.
+   - destruct l'.
+     firstorder.
+     rewrite bsort_equation.
+     simpl.
+     case_eq (Z.eqb z (najmanjsi z l')).
+      + intros F U.
+        destruct U.
+         * apply Z.eqb_eq in F; firstorder.
+         * apply IHn in H.
+           now right.
+           simpl in G.
+           omega.
+      + intros F U.
+        destruct U.
+         * assert (In (najmanjsi z l') (z :: l')).
+           apply najmanjsi_In.
+           rewrite H in H0.
+           simpl in H0.
+           firstorder.
+         * apply IHn in H.
+           case_eq (Z.eqb z x).
+           intro T; apply Z.eqb_eq in T; firstorder.
+           intro T.
+           right.
+           simpl in H.
+           destruct H.
+           apply Z.eqb_neq in T.
+           contradiction.
+           now apply pomo2 in H.
+           simpl in G.
+           simpl.
+           destruct l'.
+           apply Z.eqb_neq in F.
+           simpl in F.
+           firstorder.
+           rewrite <- pomo3.
+           omega.
+Qed.
+     
 
 Lemma ohranjanje_el (x : Z) (l : list Z) :
    In x (bsort l) -> In x l.
 Proof.
   intro.
-  induction l.
-  now simpl in H.
-  apply in_split in H.
-  destruct H; firstorder.
+  now apply (ohranjanje_el_n x (length l)) in H.
 Qed.
 
 
