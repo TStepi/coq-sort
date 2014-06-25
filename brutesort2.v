@@ -33,17 +33,16 @@ Proof.
 Qed.
 
 Lemma najmanjsi_dod (x y : Z) (l : list Z) :
-  y = najmanjsi y l -> (y < x)%Z -> y = najmanjsi y (x :: l).
+  y = najmanjsi y l -> (y <= x)%Z -> y = najmanjsi y (x :: l).
 Proof.
   intros H G.
   simpl.
-  apply Z.lt_le_incl in G.
   apply Zle_is_le_bool in G.
   now rewrite G.
 Qed.
 
 Lemma se_manjsi (x y : Z) (l : list Z) :
-  x = (najmanjsi x l) -> (y < x)%Z -> y = (najmanjsi y l).
+  x = (najmanjsi x l) -> (y <= x)%Z -> y = (najmanjsi y l).
 Proof.
   intros H G.
   induction l; auto.
@@ -93,7 +92,7 @@ Proof.
       apply Z.eqb_neq in G.
       apply Z.leb_gt in F.
       assert (a = najmanjsi a l) as E.
-      apply (se_manjsi x a);assumption.
+      apply (se_manjsi x a); firstorder.
       firstorder.
     + rewrite H in IHl.
       simpl in IHl.
@@ -441,11 +440,62 @@ Proof.
         omega.
 Qed.
 
+Lemma najmanjsi_dod1 (x y : Z) (l : list Z) :
+  (x <= y)%Z -> najmanjsi x l = najmanjsi x (y :: l).
+Proof.
+  intro.
+  simpl.
+  apply Zle_is_le_bool in H.
+  now rewrite H.
+Qed.
+
+Lemma pomo1 (x y : Z) (l : list Z) :
+  x <> najmanjsi x (y :: l) -> najmanjsi x (y :: l) = najmanjsi y l.
+Proof.
+  generalize y.
+  generalize x.
+  induction l.
+   - intros.
+     simpl.
+     simpl in H.
+     case_eq (Z.leb x0 y0).
+      + intro.
+        rewrite H0 in H.
+        firstorder.
+      + now intro.
+   - intros.
+     simpl in H.
+     simpl.
+     case_eq (Z.leb x0 y0);
+     case_eq (Z.leb x0 a);
+     case_eq (Z.leb y0 a);
+     intros;
+     rewrite H0 in H;
+     rewrite H1 in H;
+     rewrite H2 in H;
+     try (apply Zle_is_le_bool in H0);
+     try (apply Zle_is_le_bool in H1);
+     try (apply Zle_is_le_bool in H2);
+     try (apply Z.leb_gt in H0);
+     try (apply Z.leb_gt in H1);
+     try (apply Z.leb_gt in H2);
+     firstorder.
+      + rewrite (najmanjsi_dod1 x0 y0 l) in H.
+         * apply IHl in H.
+           rewrite <- H.
+           now apply najmanjsi_dod1.
+         * assumption.
+      + rewrite (najmanjsi_dod1 x0 a l) in H.
+         * apply IHl in H.
+           rewrite <- H.
+           now apply najmanjsi_dod1.
+         * assumption.
+Qed.
+
 Lemma pomo_n (n : nat) (x : Z) (l : list Z) :
   length l <= n -> x <> najmanjsi x l -> bsort l = najmanjsi x l :: bsort (ostanek l).
 Proof.
   generalize l.
-  generalize x.
   induction n.
    - intros.
      apply dolzina_nic in H.
@@ -457,9 +507,11 @@ Proof.
      firstorder.
      simpl in H.
      apply le_S_n in H.
-     admit.
-Qed.
-  
+     assert (najmanjsi x (z :: l0) = najmanjsi z l0).
+      + now apply pomo1.    
+      + rewrite H1.
+        now rewrite bsort_equation.
+Qed. 
 
 Lemma pojavi_bsort_n (x : Z) (n : nat) (l : list Z) :
   length l <= n -> pojavi x (bsort (x :: l)) = S (pojavi x (bsort l)).
@@ -498,83 +550,68 @@ Qed.
 
 Lemma pojavi_bsort2 (x y : Z) (l : list Z) :
   pojavi x (bsort (y :: x :: l)) = S (pojavi x (bsort (y :: l))).
-Admitted.
+Proof.
+  admit.
+Qed.
+     
 
+ 
 Lemma drugacen_bsort_n (n : nat) (x y : Z) (l : list Z) :
-  length l <= n -> x <> y -> pojavi x l = pojavi x (bsort  (y :: l)).
+  length l <= n -> x <> y -> pojavi x (bsort l) = pojavi x (bsort  (y :: l)).
 Proof.
   (*generalize l.
+  generalize x.
+  generalize y.
   induction n.
-   - intros.
+   - intros y' x' l' H G.
      apply dolzina_nic in H.
      rewrite H.
      rewrite en_el.
-     apply Z.eqb_neq in H0.
+     apply Z.eqb_neq in G.
      simpl.
-     now rewrite H0.
-   - intros.
-     destruct l0.
-     firstorder.
-     simpl in H.
-     apply le_S_n in H.
-     simpl.
-     case_eq (Z.eqb x z).
-      + intro.
-        apply Z.eqb_eq in H1.
-        rewrite <- H1.
-        apply IHn in H.
-         * rewrite H.
-           now rewrite pojavi_bsort2.
-         * assumption.
-      + intro.
-        apply Z.eqb_neq in H1.
+     now rewrite G.
+   - intros y' x' l' H G.
+     destruct l'.
+      + rewrite en_el.
+        simpl.
+        apply Z.eqb_neq in G.
+        now rewrite G.
+      + simpl in H.
+        apply le_S_n in H.
+        assert (length l' <= n) as HH. assumption.
+        apply (IHn y' x' l') in H.
          * rewrite bsort_equation.
            simpl.
-           case_eq (y =? najmanjsi z l0)%Z;
-           case_eq (x =? najmanjsi z l0)%Z;
-           case_eq (y =? najmanjsi y l0)%Z;
-           case_eq (x =? najmanjsi y l0)%Z;
-           case_eq (Z.leb y z);
-           intros;
-           try rewrite H1;
-           try rewrite H2;
-           try rewrite H3;
-           try rewrite H4;
-           try rewrite H5;
-           try rewrite H6;
-           try apply Z.leb_gt in H1;
-           try apply Z.leb_gt in H2;
-           try apply Z.eqb_eq in H3;
-           try apply Z.eqb_eq in H4;
-           try apply Z.eqb_eq in H5;
-           try apply Z.eqb_eq in H6;
-           try apply Zle_is_le_bool in H1;
-           try apply Zle_is_le_bool in H2;
-           try apply Z.eqb_neq in H3;
-           try apply Z.eqb_neq in H4;
-           try apply Z.eqb_neq in H5;
-           try apply Z.eqb_neq in H6;
-           try (assert (x = y); now firstorder);
-           try (assert (x = z); now firstorder);
-           try (assert (y = z); now firstorder);
-           firstorder.
-           { case_eq (Z.eqb y z).
-             + intro.
-               apply Z.eqb_eq in H7.
-               
+           {
+           case_eq (Z.eqb x' (najmanjsi z l'));
+           case_eq (Z.eqb z (najmanjsi z l'));
+           intros.
+            + apply Z.eqb_eq in H0;
+              apply Z.eqb_eq in H1;
+              rewrite H0;
+              rewrite <- H1.
+              rewrite H.
+              now rewrite pojavi_bsort2.
+            + assert (x' <> z).
+              apply Z.eqb_eq in H1;
+              apply Z.eqb_neq in H0;
+              firstorder.
+              apply (IHn z x' (ostanek l')) in H2.
+               * rewrite <- H2.
+               * destruct l'.
+                 firstorder.
+                 rewrite dolzina_ostanka.
+                 simpl in HH.
+                 omega.
+            + 
            }
-           {  
-        
-           }
-             
-           
          * assumption.*)
    admit.
 Qed.
      
 
 Lemma drugacen_bsort (x y : Z) (l : list Z) :
-  x <> y -> pojavi x l = pojavi x (bsort  (y :: l)).
+  x <> y -> pojavi x (bsort l) = pojavi x (bsort  (y :: l)).
 Proof.
   now apply (drugacen_bsort_n (length l)).
 Qed.
@@ -594,6 +631,7 @@ Proof.
      now rewrite pojavi_bsort.
    - intro.
      apply Z.eqb_neq in H.
+     rewrite IHl.
      now apply (drugacen_bsort x a l) in H.
 Qed.
      
