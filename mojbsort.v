@@ -431,6 +431,38 @@ Proof.
     omega.
 Qed.
 
+Lemma pomo_In (x : Z) (l : list Z) :
+  In x l -> length l > 0.
+Proof.
+  intro.
+  destruct l.
+  now simpl in H.
+  simpl.
+  omega.
+Qed.
+
+Lemma pomo_ostanek (x : Z) (l : list Z) :
+  length l > 0 -> length (x :: ostanek l) = length l.
+Proof.
+  generalize x.
+  induction l.
+  intros.
+  now simpl in H.
+  intros.
+  simpl.
+  case_eq (Z.eqb a (najmanjsi a l)).
+   + now intro.
+   + intro.
+     apply Z.eqb_neq in H0.
+     assert (a = najmanjsi a l \/ In (najmanjsi a l) l). apply najmanjsi_inv.
+     destruct H1 as [F | F].
+      - contradiction.
+      - assert (length l > 0).
+         * now apply pomo_In in F.
+         * apply eq_S.
+           now apply (IHl a) in H1.
+Qed.
+
 Lemma pojavi_bosrt_n (x : Z) (n : nat) (l : list Z) :
   length l <= n -> pojavi x l = pojavi x (bsort l).
 Proof.
@@ -486,23 +518,58 @@ Proof.
         firstorder.
       * apply IHn.
         omega.
-      * assert (S (pojavi y (z :: ostanek l')) = pojavi y l') as D.
+      * {
+        assert (S (pojavi y (z :: ostanek l')) = pojavi y l') as D.
         simpl.
         rewrite E.
         apply najmanjsi_ostanek.
-        admit. admit. admit.
-      * {assert (y = najmanjsi y l \/ In (najmanjsi y l) l) as D.
+         - apply Z.eqb_eq in G.
+           apply Z.eqb_neq in F.
+           now apply najmanjsi_manjsi in G.
+         - apply Z.eqb_eq in G.
+           apply Z.eqb_neq in E.
+           now apply (najmanjsi_neq y z l') in E.
+         - simpl in D.
+           rewrite E in D.
+           apply Z.eqb_eq in G.
+           assert (y = najmanjsi z l') as GG. assumption.
+           apply najmanjsi_inv1 in G.
+           destruct G as [G|G].
+           apply Z.eqb_neq in E; contradiction.
+           assert (y = najmanjsi z l') as GGG. assumption.
+           apply najmanjsi_manjsi in GG.
+           rewrite <- D.
+           apply eq_S.
+           assert (length (z :: ostanek (l')) <= n).
+            + rewrite <- (pomo_ostanek z l') in H.
+              firstorder.
+              now apply pomo_In in G.
+            + apply (IHn y) in H0.
+              rewrite <- H0.
+              simpl.
+              now rewrite E.
+        }
+      * {
+        assert (y = najmanjsi y l' \/ In (najmanjsi y l') l') as D.
         apply najmanjsi_inv.
         SearchAbout (~ In ?y ?l).
-        assert (In y l \/ (~ In y l)) as C.
-        apply In_dec.
-        destruct D as [D|D].
-        - 
+        assert (In y l' \/ (~ In y l')) as C.
+        admit.
+        (*apply In_dec.*)
+        destruct D as [D|D];
+        destruct C as [C|C].
+        - apply Z.eqb_neq in G.
+          (*protislovje*)
+          admit.
+        - (*0 = 0*)
+          admit.
+        - (*težji del, je pa res*)
+          admit.
+        - (*0 = 0*)
+          admit.
+        }
+Qed.
         
-        
-        
-
-
 
 Lemma pojavi_bsort_n (x : Z) (n : nat) (l : list Z) :
   length l <= n -> pojavi x (bsort (x :: l)) = S (pojavi x (bsort l)).

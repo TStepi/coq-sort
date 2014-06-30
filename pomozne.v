@@ -265,6 +265,33 @@ Proof.
   - destruct (IHl a) ; auto.
 Qed. 
 
+Lemma najmanjsi_inv1 (x y : Z) (l : list Z) :
+  x = najmanjsi y l -> x = y \/ In x l.
+Proof.
+  generalize y.
+  induction l.
+  firstorder.
+  intros.
+  simpl in H.
+  case_eq (Z.leb y0 a);
+  intro H0;
+  rewrite H0 in H.
+   - apply IHl in H.
+     destruct H as [H|H].
+      + now left.
+      + simpl.
+        right.
+        now right.
+   - apply IHl in H.
+     destruct H as [H|H].
+      + simpl.
+        right.
+        now left.
+      + simpl.
+        right.
+        now right.
+Qed.
+
 Lemma najmanjsi_In (x : Z) (l : list Z) : 
   In (najmanjsi x l) (x :: l).
 Proof.
@@ -319,3 +346,67 @@ Qed.
 
 Lemma najmanjsi_en (x : Z) :
   x = najmanjsi x nil.
+Proof.
+  now simpl.
+Qed.
+
+Lemma najmanjsi_neq (x y : Z) (l : list Z) :
+  x <> y -> x = najmanjsi y l -> In x l.
+Proof.
+  generalize y.
+  induction l; firstorder.
+  simpl.
+  simpl in H0.
+  case_eq (Z.leb y0 a).
+   - intro.
+     rewrite H1 in H0.
+     right.
+     now apply IHl in H.
+   - intro.
+     rewrite H1 in H0.
+     case_eq (Z.eqb a x).
+      + intro.
+        apply Z.eqb_eq in H2.
+        now left.
+      + intro. 
+        apply Z.eqb_neq in H2.
+        apply not_eq_sym in H2.
+        right.
+        now apply IHl in H2.
+Qed.
+
+Lemma najmanjsi_manjsi (x y : Z) (l : list Z) : 
+  x = najmanjsi y l -> x = najmanjsi x l.
+Proof.
+  generalize y.
+  induction l.
+  intros.
+  now simpl.
+  intros.
+  simpl.
+  simpl in H.
+  case_eq (Z.leb y0 a);
+  case_eq (Z.leb x a);
+  intros;
+  rewrite H1 in H.
+   - now apply IHl in H.
+   - apply Z.leb_gt in H0.
+     apply Zle_is_le_bool in H1.
+     assert (y0 < x); firstorder.
+     assert (najmanjsi y0 l <= y0).
+     apply najmanjsi_head.
+     firstorder.    
+   - apply Z.leb_gt in H1.
+     apply Zle_is_le_bool in H0.
+     assert (x < y0); firstorder.
+   - assumption.
+Qed.
+  
+     
+
+
+
+
+
+
+
