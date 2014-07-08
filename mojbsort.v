@@ -12,13 +12,6 @@ Fixpoint ostanek (l : list Z) : list Z :=
 
 Eval compute in (ostanek (4 :: 2 :: 6 :: 3 :: 1 :: 10 :: nil)%Z).
 
-Lemma trans (x y z : Z) :
-  (x <= y)%Z -> (y < z)%Z -> (x < z)%Z.
-Proof.
-  intros H G.
-  firstorder.
-Qed.
-
 Lemma dolzina_nic (l : list Z) :
   length l <= 0 -> l = nil.
 Proof.
@@ -463,7 +456,7 @@ Proof.
            now apply (IHl a) in H1.
 Qed.
 
-Lemma pojavi_bosrt_n (x : Z) (n : nat) (l : list Z) :
+Lemma pojavi_bsort_n (x : Z) (n : nat) (l : list Z) :
   length l <= n -> pojavi x l = pojavi x (bsort l).
 Proof.
   generalize x l.
@@ -550,48 +543,36 @@ Proof.
               now rewrite E.
         }
       * {
-        assert (y = najmanjsi y l' \/ In (najmanjsi y l') l') as D.
-        apply najmanjsi_inv.
-        SearchAbout (~ In ?y ?l).
-        assert (In y l' \/ (~ In y l')) as C.
-        admit.
-        (*apply In_dec.*)
-        destruct D as [D|D];
-        destruct C as [C|C].
-        - apply Z.eqb_neq in G.
-          (*protislovje*)
-          admit.
-        - (*0 = 0*)
-          admit.
-        - (*težji del, je pa res*)
-          admit.
-        - (*0 = 0*)
-          admit.
+        assert (pojavi y (z :: ostanek l') = pojavi y l') as D.
+        - simpl.
+          rewrite E.
+          apply Z.eqb_neq in G; apply Z.eqb_neq in F; apply Z.eqb_neq in E.
+          case_eq (Z.eqb y (najmanjsi y l'));intro C.
+          + apply Z.eqb_eq in C.
+            assert (~ In y l') as B.
+            apply (nenajmanjse_fore y z l'); assumption.
+            rewrite <- pojavi_notIn; auto.           
+          + apply Z.eqb_neq in C.
+            now apply nenajmanjsi_ostanek.
+        - rewrite <- D.
+          apply IHn.
+          simpl.
+          destruct l'.
+          simpl in F.
+          apply Z.eqb_neq in F.
+          omega.
+          rewrite dolzina_ostanka.
+          simpl in H.
+          omega.
         }
 Qed.
-        
 
-Lemma pojavi_bsort_n (x : Z) (n : nat) (l : list Z) :
-  length l <= n -> pojavi x (bsort (x :: l)) = S (pojavi x (bsort l)).
+Theorem bsort_permutira : forall l : list Z, permutiran l (bsort l).
 Proof.
-  generalize x l.
-  induction n;
-  intros y l' H.
-  - apply dolzina_nic in H.
-    rewrite H.
-    rewrite bsort_equation.
-    simpl.
-    now rewrite Z.eqb_refl.
-  - apply le_lt_or_eq in H.
-    destruct H as [H|H].
-    + apply lt_n_Sm_le in H.
-      now apply (IHn y l') in H.
-    + rewrite bsort_equation.
-      case_eq (Z.eqb y (najmanjsi y l')); intro G.
-      * simpl.
-        now rewrite G.
-      * simpl.
-        rewrite G.
-        rewrite bsort_equation.
-        
-        
+  intro l.
+  unfold permutiran.
+  intro x.
+  now apply (pojavi_bsort_n x (length l) l).
+Qed.
+
+     

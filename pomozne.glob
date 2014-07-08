@@ -1,4 +1,4 @@
-DIGEST c8161c3cbfd2c630b44732e6e05996c5
+DIGEST 48fe4a193f5209d29aa05327b185f8cd
 Fpomozne
 R247:250 Coq.Lists.List <> <> lib
 R268:271 Coq.Bool.Bool <> <> lib
@@ -597,3 +597,61 @@ R9732:9745 Coq.ZArith.Zbool <> Zle_is_le_bool thm
 R9732:9745 Coq.ZArith.Zbool <> Zle_is_le_bool thm
 R9768:9770 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
 R9768:9770 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+prf 9817:9821 <> trans
+R9832:9832 Coq.Numbers.BinNums <> Z ind
+R9868:9870 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R9867:9867 pomozne <> x var
+R9871:9871 pomozne <> z var
+R9855:9857 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R9854:9854 pomozne <> y var
+R9858:9858 pomozne <> z var
+R9841:9844 Coq.ZArith.BinInt <> :Z_scope:x_'<='_x not
+R9840:9840 pomozne <> x var
+R9845:9845 pomozne <> y var
+prf 9926:9941 <> nenajmanjse_fore
+R9950:9950 Coq.Numbers.BinNums <> Z ind
+R9958:9961 Coq.Init.Datatypes <> list ind
+R9963:9963 Coq.Numbers.BinNums <> Z ind
+R10035:10036 Coq.Init.Logic <> :type_scope:'~'_x not
+R10037:10038 Coq.Lists.List <> In def
+R10042:10042 pomozne <> l var
+R10040:10040 pomozne <> y var
+R10015:10017 Coq.Init.Logic <> :type_scope:x_'='_x not
+R10014:10014 pomozne <> y var
+R10018:10026 pomozne <> najmanjsi def
+R10030:10030 pomozne <> l var
+R10028:10028 pomozne <> y var
+R9993:9996 Coq.Init.Logic <> :type_scope:x_'<>'_x not
+R9992:9992 pomozne <> z var
+R9997:10005 pomozne <> najmanjsi def
+R10009:10009 pomozne <> l var
+R10007:10007 pomozne <> z var
+R9971:9974 Coq.Init.Logic <> :type_scope:x_'<>'_x not
+R9970:9970 pomozne <> y var
+R9975:9983 pomozne <> najmanjsi def
+R9987:9987 pomozne <> l var
+R9985:9985 pomozne <> z var
+R10088:10092 Coq.Init.Logic <> False ind
+R10078:10079 Coq.Lists.List <> In def
+R10088:10092 Coq.Init.Logic <> False ind
+R10078:10079 Coq.Lists.List <> In def
+R10128:10131 Coq.ZArith.BinInt <> :Z_scope:x_'<='_x not
+R10115:10123 pomozne <> najmanjsi def
+R10128:10131 Coq.ZArith.BinInt <> :Z_scope:x_'<='_x not
+R10115:10123 pomozne <> najmanjsi def
+R10147:10160 pomozne <> najmanjsi_head thm
+R10147:10160 pomozne <> najmanjsi_head thm
+R10186:10188 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R10173:10181 pomozne <> najmanjsi def
+R10186:10188 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R10173:10181 pomozne <> najmanjsi def
+R10228:10231 Coq.ZArith.BinInt <> :Z_scope:x_'<='_x not
+R10215:10223 pomozne <> najmanjsi def
+R10228:10231 Coq.ZArith.BinInt <> :Z_scope:x_'<='_x not
+R10215:10223 pomozne <> najmanjsi def
+R10251:10264 pomozne <> najmanjsi_tail thm
+R10251:10264 pomozne <> najmanjsi_tail thm
+R10290:10292 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R10277:10285 pomozne <> najmanjsi def
+R10290:10292 Coq.ZArith.BinInt <> :Z_scope:x_'<'_x not
+R10277:10285 pomozne <> najmanjsi def

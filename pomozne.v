@@ -401,9 +401,31 @@ Proof.
      assert (x < y0); firstorder.
    - assumption.
 Qed.
-  
-     
 
+Lemma trans (x y z : Z) :
+  (x <= y)%Z -> (y < z)%Z -> (x < z)%Z.
+Proof.
+  intros H G.
+  firstorder.
+Qed.
+  
+Lemma nenajmanjse_fore (y z : Z) (l : list Z) :
+  y <> najmanjsi z l -> z <> najmanjsi z l -> y = najmanjsi y l -> ~ In y l.
+Proof.
+  intros A B C.
+  assert (In y l -> False).
+  intro.
+  assert (najmanjsi z l <= z) as D. apply najmanjsi_head.
+  assert (najmanjsi z l < z) as E. omega.
+  assert (najmanjsi z l <= y) as F. now apply najmanjsi_tail.
+  assert (najmanjsi z l < y) as G. omega.
+  clear D F.
+  admit.
+  firstorder.
+Qed.
+      
+      
+      
 
 
 
