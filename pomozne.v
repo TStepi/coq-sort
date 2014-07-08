@@ -344,12 +344,6 @@ Proof.
   - now apply najmanjsi_tail.
 Qed.
 
-Lemma najmanjsi_en (x : Z) :
-  x = najmanjsi x nil.
-Proof.
-  now simpl.
-Qed.
-
 Lemma najmanjsi_neq (x y : Z) (l : list Z) :
   x <> y -> x = najmanjsi y l -> In x l.
 Proof.
@@ -414,21 +408,16 @@ Lemma nenajmanjse_fore (y z : Z) (l : list Z) :
 Proof.
   intros A B C.
   assert (In y l -> False).
-  intro.
-  assert (najmanjsi z l <= z) as D. apply najmanjsi_head.
-  assert (najmanjsi z l < z) as E. omega.
-  assert (najmanjsi z l <= y) as F. now apply najmanjsi_tail.
-  assert (najmanjsi z l < y) as G. omega.
-  clear D F.
-  admit.
-  firstorder.
+  - intro.
+    assert (najmanjsi z l <= z) as D. apply najmanjsi_head.
+    assert (najmanjsi z l < z) as E. omega.
+    assert (najmanjsi z l <= y) as F. now apply najmanjsi_tail.
+    assert (najmanjsi z l < y) as G. omega.
+    clear D F A B.
+    assert (z = najmanjsi z l \/ In (najmanjsi z l) l) as F. apply najmanjsi_inv.
+    destruct F as [F | F].
+    + omega.
+    + apply (najmanjsi_tail y (najmanjsi z l) l) in F.
+      omega.
+  - firstorder.
 Qed.
-      
-      
-      
-
-
-
-
-
-
