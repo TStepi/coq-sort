@@ -33,33 +33,6 @@ Fixpoint urejen (l : list Z) :=
 
 (** Razne koristne leme o urejenosti. *)
 
-Lemma urejen_tail (x : Z) (l : list Z) :
-  urejen (x :: l) -> urejen l.
-Proof.
-  induction l ; firstorder.
-Qed.
-
-Lemma urejen_head (x : Z) (l : list Z) :
-  urejen (x :: l) -> forall y, In y l -> x <= y.
-Proof.
-  generalize x ; clear x.
-  induction l.
-  - simpl ; tauto.
-  - intros x [H G] z [K|K].
-    + now destruct K.
-    + transitivity a ; auto.
-Qed.
-
-Lemma urejen_lt_cons (x : Z) (l : list Z) :
-  (forall y : Z, In y l -> x <= y) -> urejen l -> urejen (x :: l).
-Proof.
-  intros H G.
-  induction l ; [ simpl ; auto | idtac ].
-  split.
-  - apply H ; simpl ; auto.
-  - destruct l ; simpl ; auto.
-Qed.
-
 Lemma urejen_dodatek (x y : Z) (l : list Z) :
   (x<=y)%Z /\ urejen (y :: l) -> urejen (x :: y :: l).
 Proof.
@@ -109,14 +82,6 @@ Fixpoint pojavi (x : Z) (l : list Z) : nat :=
       if x =? y then S (pojavi x l') else pojavi x l'
   end.
 
-(** Zveza med [pojavi] in stikanjem seznamov. *)
-Lemma pojavi_app (x : Z) (l1 l2 : list Z) :
-  pojavi x (l1 ++ l2) = (pojavi x l1 + pojavi x l2)%nat.
-Proof.
-  induction l1 ; simpl ; auto.
-  case (x =? a) ; omega.
-Qed.
-
 (** Seznama [l1] in [l2] sta enaka, če imata isto število pojavitev
     za vsak [x]. *)
 Definition permutiran (l1 l2 : list Z) :=
@@ -143,18 +108,6 @@ Proof.
   intros E1 E2 x.
   transitivity (pojavi x l2) ; auto.
 Qed.
-  
-(** Potrebovali bomo tudi operacije, ki sezname razdelijo na dva
-    podseznama. Na primer, v urejanju z zlivanjem seznam razdelimo
-    takole: *)
-Fixpoint razpolovi (l : list Z) :=
-  match l with
-    | nil => (nil, nil)
-    | x :: nil => (nil, x :: nil)
-    | x :: y :: l' =>
-      let (l1, l2) := razpolovi l' in
-        (x :: l1, y :: l2)
-  end.
 
 (** To je pomožna oblika indukcije na seznamih. Pravi, pa tole:
     denimo, da lastnost P in da
@@ -181,60 +134,6 @@ Fixpoint list_ind_2
     | x :: nil => p1 x
     | x :: y :: l' => p2 x y l' (list_ind_2 P p0 p1 p2 l')
   end.
-
-Lemma dolzina A (x : A) (l : list A) :
-  S(length l) = length (x :: l).
-Proof.
-  firstorder.
-Qed.
-
-(** Osnovne lastnosti razpolavljanja. *)
-
-Lemma razpolovi_length (l : list Z) :
-  match razpolovi l with
-    | (l1, l2) => length l = (length l1 + length l2)%nat
-  end.
-Proof.
-  apply (list_ind_2 (fun l =>
-                      let (l1, l2) := razpolovi l in
-                        length l = length l1 + length l2))%nat ;
-    simpl ; auto.
-  intros x y l' H.
-  replace (razpolovi l') with (fst (razpolovi l'), snd (razpolovi l')) in * |- * ;
-    [ idtac | symmetry ; apply surjective_pairing ].
-  simpl.
-  SearchAbout (?x + S ?y).
-  rewrite <- plus_n_Sm.
-  now repeat f_equal.
-Qed.
-
-(** Nekateri algoritmi za urejanje razdelijo seznam na podseznama
-    glede na dani kriterij [p]. *)
-Fixpoint razdeli (p : Z -> bool) (l : list Z) :=
-  match l with
-    | nil => (nil, nil)
-    | x :: l' =>
-      let (l1, l2) := razdeli p l' in
-        if p x then (x :: l1, l2) else (l1, x :: l2)
-  end.
-
-(** Na primer, takole razdelimo dani seznam glede na to,
-    ali so elementi večji od 5. *)
- 
-Lemma razdeli_length (p : Z -> bool) (l : list Z) :
-  let (l1, l2) := razdeli p l in
-    length l = (length l1 + length l2)%nat.
-Proof.
-  induction l.
-  - simpl ; auto.
-  - simpl.
-    replace (razdeli p l) with (fst (razdeli p l), snd (razdeli p l)) in * |- * ;
-      [ idtac | symmetry ; apply surjective_pairing ].
-    destruct (p a) ; simpl.
-    + now f_equal.
-    + rewrite <- plus_n_Sm.
-      now f_equal.
-Qed.
 
 (** Nekateri algoritmi izračunajo minimalni element seznama. 
     Ker minimalni element praznega seznama ne obstaja, vedno
@@ -334,14 +233,6 @@ Proof.
       + intro F.
         apply Z.leb_gt in F.
         now apply (IHl a y).
-Qed.
-
-Lemma najmanjsi_spodna_meja (x : Z) (l : list Z) :
-  forall y, In y (x :: l) -> najmanjsi x l <= y.
-Proof.
-  intros y [H|H].
-  - rewrite H ; apply najmanjsi_head.
-  - now apply najmanjsi_tail.
 Qed.
 
 Lemma najmanjsi_neq (x y : Z) (l : list Z) :

@@ -18,22 +18,6 @@ Fixpoint insertsort (l : list Z) :=
     | x :: l' => vstavi x (insertsort l')
   end.
 
-Eval compute in (insertsort (2 :: 5 :: 3 :: 1 :: 10 :: 7 :: nil)%Z).
-
-
-
-Lemma vstavi_min (x : Z) (l : list Z) :
-  urejen (x :: l) -> vstavi x l = x :: l.
-Proof.
-  induction l; auto.
-  intro H.
-  apply (urejen_prvi x a (a :: l)) in H.
-  - simpl.
-    apply Zle_is_le_bool in H.
-    now rewrite H.
-  - firstorder.
-Qed.
-
 Lemma vstavi_glava (x y : Z) (l : list Z) :
   (x < y)%Z -> vstavi y (x :: l) = x :: (vstavi y l).
 Proof.
@@ -50,8 +34,7 @@ Proof.
   simpl.
   apply Zle_is_le_bool in H.
   now rewrite H.
-Qed.
-      
+Qed.  
        
 Lemma vstavi_mini (x : Z) (l : list Z) :
   urejen l -> (forall y, In y l -> (x <= y)%Z) -> urejen (x :: l).
@@ -107,8 +90,6 @@ Proof.
       firstorder.
       now apply (urejen_prvi a y l).
 Qed.
-
-     
 
 Theorem sort_ureja : forall l : list Z, urejen (insertsort l).
 Proof.
@@ -182,9 +163,7 @@ Proof.
       * intro F.
         simpl.
         now rewrite G.
-Qed.
-        
-        
+Qed.    
 
 Theorem sort_permutira : forall l : list Z, permutiran l (insertsort l).
 Proof.
@@ -206,14 +185,4 @@ Proof.
     rewrite IHl.
     apply Z.eqb_neq in H.
     now apply vstavi_drugacnega.
-Qed.    
-    
-    
-  
-
-
-
-
-
-
-
+Qed.

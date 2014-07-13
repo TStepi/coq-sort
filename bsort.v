@@ -122,74 +122,6 @@ Proof.
   firstorder.
 Defined.
 
-
-Eval compute in (bsort (4 :: 2 :: 3 :: 5 :: 1 :: nil)%Z).
-
-Lemma dolzina_bsort (n : nat) (l : list Z) : 
-  length l <= n -> length (bsort l) = length l.
-Proof.
-  generalize l.
-  induction n; intros l' H.
-  - apply dolzina_nic in H.
-    now rewrite H.
-  - apply le_lt_or_eq in H.
-    destruct H.
-    + apply IHn.
-      omega.
-    + destruct l'.
-      now simpl.
-      rewrite H.
-      rewrite bsort_equation.
-      rewrite <- dolzina.
-      apply eq_S.
-      simpl in H.
-      apply eq_add_S in H.
-      rewrite <- H.
-      assert (length (bsort (ostanek (z :: l'))) = length (ostanek (z :: l'))) as G.
-      apply IHn.
-      assert (length (ostanek (z :: l')) = n) as F.
-      rewrite <- H.
-      apply dolzina_ostanka.
-      omega.
-      rewrite G.
-      now rewrite dolzina_ostanka.
-Qed.     
-
-
-
-Lemma prvi_najmanjsi (x : Z) (l : list Z) :
-  urejen (x :: l) -> najmanjsi x l = x.
-Proof.
-  intro.
-  induction l; auto.
-  simpl.
-  case_eq (Z.leb x a).
-   - intro G.
-     apply urejen_pod2 in H.
-     now apply IHl in H.
-   - intro G.
-     apply Z.leb_gt in G.
-     firstorder.
-Qed.
-
-Lemma o_ostanku (x : Z) (l : list Z) :
-  urejen (x :: l) -> ostanek (x :: l) = l.
-Proof.
-  intro.
-  induction l.
-  unfold ostanek.
-  simpl.
-  assert ((x =? x)%Z = true).
-  apply Z.eqb_refl.
-  now rewrite H0.
-  unfold ostanek.
-  assert ((x =? najmanjsi x (a :: l))%Z = true).
-   - rewrite (prvi_najmanjsi x (a::l)).
-     apply Z.eqb_refl.
-     assumption.
-   - now rewrite H0.
-Qed.
-
 Lemma ostanek_pod (x : Z) (l : list Z) :
   In x (ostanek l) -> In x l.
 Proof.
@@ -210,7 +142,6 @@ Proof.
         firstorder.
 Qed.
 
-
 Lemma urejen_najmanjsi (x : Z) (l : list Z) :
   urejen l -> (forall y, In y l -> (x <= y)%Z) -> urejen (x :: l).
 Proof.
@@ -223,7 +154,6 @@ Proof.
     firstorder.
   - destruct l; auto.
 Qed.
-
 
 Lemma ohranjanje_el (n : nat) (x : Z) (l : list Z) :
   length l <= n -> In x (bsort l) -> In x l.
@@ -252,8 +182,7 @@ Proof.
         rewrite dolzina_ostanka.
         simpl in H.
         omega.
-Qed.
-          
+Qed.         
 
 Lemma bsort_ureja_n (n : nat) (l : list Z) :
   (length l <= n)%nat -> urejen (bsort l).
@@ -574,5 +503,3 @@ Proof.
   intro x.
   now apply (pojavi_bsort_n x (length l) l).
 Qed.
-
-     
